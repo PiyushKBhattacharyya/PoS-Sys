@@ -1,0 +1,94 @@
+graph TD
+    subgraph "Customer"
+        C1["Places order"]
+    end
+
+    subgraph "PoS System"
+        P1["Captures phone number"]
+        P2["Sends phone number to Backend"]
+    end
+
+    subgraph "Backend Service"
+        B1["Stores customer data"]
+        B2["Triggers feedback message"]
+        B3["Receives rating and feedback"]
+        B4["Stores rating and feedback"]
+        B5["Sends Google review link"]
+        B6["Monitors Google Reviews"]
+        B7["Sends review and auto-reply to Slack"]
+        B8["Triggers auto-reply on Google"]
+        B9["Triggers offer message"]
+        B10["Sends feedback reminder Day 2"]
+        B11["Sends feedback reminder Day 7"]
+        B12["Sends review reminder"]
+        B13["Generates daily summary and insights"]
+        B14["Sends summary/insights to Slack"]
+        B15["Sends summary/insights via Email"]
+    end
+
+    subgraph "Supabase"
+        S1["Stores customer data"]
+        S2["Stores rating and feedback"]
+    end
+
+    subgraph "Telegram Bot"
+        T1["Sends feedback request"]
+        T2["Receives rating"]
+        T3["Sends Google review link"]
+        T4["Sends offer message"]
+        T5["Sends feedback reminder"]
+        T6["Sends review reminder"]
+    end
+
+    subgraph "Google Reviews"
+        G1["Customer leaves review"]
+    end
+
+    subgraph "Slack"
+        SL1["Receives user review and auto-reply"]
+        SL2["Receives summary/insights"]
+    end
+
+    subgraph "Email"
+        E1["Receives summary/insights"]
+    end
+
+    subgraph "Internal Team"
+        I1["Reviews feedback and defines next steps"]
+    end
+
+    C1 --> P1
+    P1 --> P2
+    P2 --> B1
+    B1 --> S1
+    B1 --> B2
+    B2 -- "24 mins after order" --> T1
+    T1 --> T2
+    T2 --> B3
+    B3 --> B4
+    B4 --> S2
+
+    B4 -- "Rating 4-5" --> B5
+    B5 --> T3
+    T3 --> G1
+    G1 --> B6
+    B6 --> B7
+    B7 --> SL1
+    B6 --> B8
+
+    B4 -- "Rating 1-3" --> B9
+    B9 -- "Day X" --> T4
+
+    B2 -- "No Feedback" --> B10
+    B10 -- "Day 2" --> T5
+    B10 -- "Day 7" --> B11
+    B11 --> T5
+
+    B5 -- "No Click" --> B12
+    B12 --> T6
+
+    B13 --> B14
+    B14 --> SL2
+    B13 --> B15
+    B15 --> E1
+    B14 & B15 --> I1

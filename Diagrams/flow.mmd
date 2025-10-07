@@ -1,0 +1,32 @@
+graph TD
+    A["Customer Places Order"] --> B{"PoS Captures Phone Number"};
+    B --> C["PoS API Sends Phone Number to Backend"];
+    C --> D["Backend Stores Phone Number in Supabase"];
+    D --> E{"24 Mins Timer Starts"};
+    E --> F["Backend Triggers Telegram Feedback Message"];
+    F --> G["Telegram Bot Sends Interactive Rating Buttons (1-5)"];
+    G --> H{"Customer Submits Rating"};
+
+    H -- "Rating 4-5" --> I["Backend Triggers Telegram Google Review Link"];
+    I --> J["Telegram Bot Sends Custom Google Review Link"];
+    J --> K{"Customer Clicks Link & Leaves Review"};
+    K --> L["Backend Monitors Google Reviews"];
+    L --> M["Backend Triggers Auto-Reply on Google"];
+    M --> N["Backend Sends Review & Auto-Reply to Slack 'Feedbacks'"];
+    
+    H -- "Rating 1-3" --> O["Backend Triggers Telegram Offer Message (Day X)"];
+    O --> P["Telegram Bot Sends Offer Message"];
+
+    H -- "Not Submitted" --> Q["Backend Triggers Telegram Reminder (Day 2)"];
+    Q --> R["Telegram Bot Sends Reminder"];
+    R --> S["Backend Triggers Telegram Reminder (Day 7)"];
+    S --> T["Telegram Bot Sends Reminder"];
+
+    subgraph "Daily Operations"
+        U["Backend Generates Daily Summary & Insights (1-3 Feedbacks)"] --> V["Backend Sends Summary/Insights to Slack 'Feedbacks'"];
+        U --> W["Backend Sends Summary/Insights via Email"];
+        V & W --> X["Internal Team Reviews Feedback Manually"];
+    end
+
+    J -- "Not Clicked" --> Y["Backend Triggers Telegram Review Reminder"];
+    Y --> Z["Telegram Bot Sends Review Reminder"];
